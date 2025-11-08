@@ -1,0 +1,119 @@
+body {
+    background: linear-gradient(to bottom, #ffafbd, #ffc3a0);
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center; /* horizontal centering */
+    align-items: center;     /* vertical centering */
+    height: 100vh;           /* full viewport height */
+    margin: 0;
+    flex-direction: column;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.ok{
+    margin-top: 10px;
+    display: flex;
+    background: linear-gradient(90deg, #ff9a9e, #fad0c4); /* Gradient background */
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.25),
+        inset 0 0 15px rgba(255, 255, 255, 0.4),
+        inset 0 0 5px rgba(255, 255, 255, 0.2); 
+    
+    border: 1px solid rgba(255, 255, 255, 0.6); 
+    
+    
+    transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) scale(1.02); 
+    transition: all 0.4s ease; 
+    padding: 10px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    gap: 20px; /* Space between tabs */
+    position: relative;  /* keeps it in normal flow */
+    z-index: 4;
+    margin-bottom: 1px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+.ok::before {
+    content: '';
+    position: absolute;
+    top: -2px; 
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #ffafbd, #ffc3a0, #ff9a9e, #fad0c4, white); /* A rotating border gradient */
+    z-index: -1; /* Place it behind the main content */
+    border-radius: 60px; /* Slightly larger than the main box */
+    filter: blur(10px); /* Blur to make it look like a glowing border */
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+
+.ok:hover {
+    background-color: rgba(247, 164, 164, 0.2);
+    transform: translateY(-6px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+}
+input[type="password"] {
+  padding: 12px 18px;
+  width: 250px;
+  border: 2px solid #fff;
+  border-radius: 25px;
+  outline: none;
+  font-size: 16px;
+  transition: 0.3s;
+}
+
+input[type="password"]:focus {
+  border-color: #f89fcb;
+  box-shadow: 0 0 10px #e4b7cd;
+}
+.card{
+   
+    color: aliceblue;
+    width: 500px;
+    padding: 30px; 
+    border-radius: 25px; 
+    background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+    
+    z-index: 1;
+    
+    position: relative; /* Needed for pseudo-elements */
+    overflow: hidden; /* To keep inner elements within bounds */
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.25), /* Main shadow */
+        0 0 0 5px rgba(255, 255, 255, 0.3); /* A subtle "inner frame" effect */
+    
+    border: none; /* We'll use a pseudo-element for the border */
+    
+    /* Subtle perspective for depth */
+    transform: translateY(-5px); 
+    transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+    
+
+    /* For better text alignment within the new padding */
+    display: flex; /* Make it a flex container */
+    flex-direction: column; /* Stack children vertically */
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */     
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: -2px; 
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #ffafbd, #ffc3a0, #ff9a9e, #fad0c4); /* A rotating border gradient */
+    z-index: -1; /* Place it behind the main content */
+    border-radius: 20px; /* Slightly larger than the main box */
+    filter: blur(8px); /* Blur to make it look like a glowing border */
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.card:hover::before {
+    opacity: 1;
+    filter: blur(12px);
+}
+

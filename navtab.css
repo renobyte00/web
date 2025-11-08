@@ -1,0 +1,67 @@
+.navtab {
+    display: flex;
+    background: linear-gradient(90deg, #ff9a9e, #fad0c4); /* Gradient background */
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.25),
+        inset 0 0 15px rgba(255, 255, 255, 0.4),
+        inset 0 0 5px rgba(255, 255, 255, 0.2); 
+    
+    border: 1px solid rgba(255, 255, 255, 0.6); 
+    
+    
+    transform: perspective(1000px) rotateX(2deg) rotateY(-2deg) scale(1.02); 
+    transition: all 0.4s ease; 
+    padding: 10px 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    gap: 20px; /* Space between tabs */
+    position: relative;  /* keeps it in normal flow */
+    z-index: 2;
+    margin-bottom: 15px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Link styling */
+.navtab a {
+    text-decoration: none;
+    color: #fff;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    display: inline-block;
+    cursor: pointer;
+}
+
+/* Hover effect */
+.navtab a:hover {
+    background-color: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+}
+
+/* Active tab styling */
+.navtab a.active {
+    background-color: #fff;
+    color: #ff6f91;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+.navtab::before {
+    content: '';
+    position: absolute;
+    top: -2px; 
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #ffafbd, #ffc3a0, #ff9a9e, #fad0c4, white); /* A rotating border gradient */
+    z-index: -1; /* Place it behind the main content */
+    border-radius: 20px; /* Slightly larger than the main box */
+    filter: blur(8px); /* Blur to make it look like a glowing border */
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.navtab:hover::before {
+    opacity: 1;
+    filter: blur(12px);
+}

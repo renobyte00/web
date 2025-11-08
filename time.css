@@ -1,0 +1,81 @@
+
+body {
+    background: linear-gradient(to bottom, #ffafbd, #ffc3a0);
+    background-repeat: no-repeat;
+    display: flex;
+    justify-content: center; /* horizontal centering */
+    align-items: center;     /* vertical centering */
+    height: 100vh;           /* full viewport height */
+    margin: 0;
+    flex-direction: column;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.time {
+   
+    color: aliceblue;
+    width: 450px;
+    padding: 30px; 
+    border-radius: 25px; 
+    background: linear-gradient(90deg, #ff9a9e, #fad0c4);
+    
+    z-index: 1;
+    
+    position: relative; /* Needed for pseudo-elements */
+    overflow: hidden; /* To keep inner elements within bounds */
+    box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.25), /* Main shadow */
+        0 0 0 5px rgba(255, 255, 255, 0.3); /* A subtle "inner frame" effect */
+    
+    border: none; /* We'll use a pseudo-element for the border */
+    
+    /* Subtle perspective for depth */
+    transform: translateY(-5px); 
+    transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+    
+
+    /* For better text alignment within the new padding */
+    display: flex; /* Make it a flex container */
+    flex-direction: column; /* Stack children vertically */
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */     
+}
+
+.time h1 {
+    text-align: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    padding-bottom: 5px;
+}
+
+.time h2{
+    text-align: center;
+    margin-bottom: 15px;
+
+    padding-bottom: 5px;
+}
+
+.time::before {
+    content: '';
+    position: absolute;
+    top: -2px; 
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #ffafbd, #ffc3a0, #ff9a9e, #fad0c4); /* A rotating border gradient */
+    z-index: -1; /* Place it behind the main content */
+    border-radius: 20px; /* Slightly larger than the main box */
+    filter: blur(8px); /* Blur to make it look like a glowing border */
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.time:hover::before {
+    opacity: 1;
+    filter: blur(12px);
+}
+
+.time:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+}

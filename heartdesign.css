@@ -1,0 +1,46 @@
+
+
+.emoji-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;  /* behind content */
+    overflow: hidden;
+}
+
+
+
+.tulip {
+    position: absolute;
+    animation: fall linear infinite;
+}
+.matcha{
+    position: absolute;
+    animation: fall linear infinite;
+}
+.berry{
+    position: absolute;
+    animation: fall linear infinite;
+}
+
+/* Heart shape using CSS */
+.heart {
+    position: absolute;
+    animation: fall linear infinite;
+}
+
+/* Animation */
+@keyframes fall {
+    0% {
+        top: -50px;
+        opacity: 1;
+        transform: translateX(0px) rotate(0deg); /* rotate 360° while falling */
+    }
+    100% {
+        top: 100vh;
+        opacity: 0;
+        transform: translateX(50px) rotate(45deg); /* rotate 360° while falling */
+    }
+}
