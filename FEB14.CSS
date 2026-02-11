@@ -173,7 +173,6 @@ body {
   color: white;
   font-size: 16px;
   cursor: pointer;
-  position: relative;
   margin-right: 10px;
   margin-left: -80px;
 }
@@ -256,5 +255,6 @@ body {
     opacity: 0;
   }
 }
+
 
 
