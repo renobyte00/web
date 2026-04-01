@@ -15,7 +15,7 @@ function makePage() {
   return { id: null, slots: Array.from({ length: 6 }, () => ({ id: null, img: null })) };
 }
 
-let dateEntries = [];   // populated from Supabase on load
+let dateEntries = [];
 
 /* ══════════════════════════════════════════
      STATE
@@ -35,7 +35,74 @@ const nextBtn    = document.getElementById('nextBtn');
 const fileInput  = document.getElementById('fileInput');
 
 /* ══════════════════════════════════════════
-     LOADING OVERLAY HELPERS
+     LIGHTBOX STATE
+  ══════════════════════════════════════════ */
+let lbImages  = [];   // flat list of img URLs currently visible in open entry
+let lbIndex   = 0;
+
+const lbOverlay = document.getElementById('lightboxOverlay');
+const lbImg     = document.getElementById('lightboxImg');
+const lbPrev    = document.getElementById('lbPrev');
+const lbNext    = document.getElementById('lbNext');
+const lbCounter = document.getElementById('lightboxCounter');
+
+function buildLightboxImages() {
+  const entry = getEntry();
+  lbImages = [];
+  entry.pages.forEach(pg => {
+    pg.slots.forEach(s => { if (s.img) lbImages.push(s.img); });
+  });
+}
+
+function openLightbox(startUrl) {
+  buildLightboxImages();
+  if (!lbImages.length) return;
+  lbIndex = lbImages.indexOf(startUrl);
+  if (lbIndex < 0) lbIndex = 0;
+  lbImg.src = lbImages[lbIndex];
+  updateLightboxUI();
+  lbOverlay.classList.add('open');
+}
+
+function closeLightbox() {
+  lbOverlay.classList.remove('open');
+  lbImg.src = '';
+}
+
+function lightboxNav(dir) {
+  const target = lbIndex + dir;
+  if (target < 0 || target >= lbImages.length) return;
+
+  lbImg.classList.add('fade');
+  setTimeout(() => {
+    lbIndex = target;
+    lbImg.src = lbImages[lbIndex];
+    lbImg.classList.remove('fade');
+    updateLightboxUI();
+  }, 200);
+}
+
+function updateLightboxUI() {
+  lbCounter.textContent = `${lbIndex + 1} / ${lbImages.length}`;
+  lbPrev.toggleAttribute('disabled', lbIndex === 0);
+  lbNext.toggleAttribute('disabled', lbIndex === lbImages.length - 1);
+}
+
+// Close lightbox on backdrop click
+lbOverlay.addEventListener('click', function (e) {
+  if (e.target === lbOverlay) closeLightbox();
+});
+
+// Keyboard navigation
+document.addEventListener('keydown', function (e) {
+  if (!lbOverlay.classList.contains('open')) return;
+  if (e.key === 'ArrowLeft')  lightboxNav(-1);
+  if (e.key === 'ArrowRight') lightboxNav(1);
+  if (e.key === 'Escape')     closeLightbox();
+});
+
+/* ══════════════════════════════════════════
+     LOADING TOAST
   ══════════════════════════════════════════ */
 function showLoading(msg = 'Saving… 🌸') {
   let el = document.getElementById('loadingToast');
@@ -65,31 +132,18 @@ function hideLoading() {
 async function loadAllData() {
   showLoading('Loading memories… 💖');
 
-  // 1. Fetch all date entries
   const { data: entries, error: eErr } = await db
-    .from('date_entries')
-    .select('*')
-    .order('created_at', { ascending: true });
+    .from('date_entries').select('*').order('created_at', { ascending: true });
+  if (eErr) { console.error(eErr); hideLoading(); return; }
 
-  if (eErr) { console.error('Error loading entries:', eErr); hideLoading(); return; }
-
-  // 2. Fetch all pages
   const { data: pages, error: pErr } = await db
-    .from('pages')
-    .select('*')
-    .order('page_index', { ascending: true });
+    .from('pages').select('*').order('page_index', { ascending: true });
+  if (pErr) { console.error(pErr); hideLoading(); return; }
 
-  if (pErr) { console.error('Error loading pages:', pErr); hideLoading(); return; }
-
-  // 3. Fetch all photo slots
   const { data: slots, error: sErr } = await db
-    .from('photo_slots')
-    .select('*')
-    .order('slot_index', { ascending: true });
+    .from('photo_slots').select('*').order('slot_index', { ascending: true });
+  if (sErr) { console.error(sErr); hideLoading(); return; }
 
-  if (sErr) { console.error('Error loading slots:', sErr); hideLoading(); return; }
-
-  // 4. Assemble into local dateEntries structure
   dateEntries = entries.map(entry => {
     const entryPages = pages
       .filter(p => p.date_entry_id === entry.id)
@@ -100,10 +154,7 @@ async function loadAllData() {
         });
         return { id: pg.id, slots: pgSlots };
       });
-
-    // If no pages saved yet, give it one blank page (will be saved on first use)
     if (entryPages.length === 0) entryPages.push(makePage());
-
     return { id: entry.id, date: entry.date, label: entry.label, emoji: entry.emoji, pages: entryPages };
   });
 
@@ -123,7 +174,6 @@ function renderGrid() {
 
     const card = document.createElement('div');
     card.className = 'date-card' + (entry.id === activeId ? ' active' : '');
-    card.style.position = 'relative';
 
     card.innerHTML = `
       <button class="delete-card-btn" onclick="deleteDate(event, '${entry.id}')">✕</button>
@@ -136,7 +186,6 @@ function renderGrid() {
     grid.appendChild(card);
   });
 
-  /* add card */
   const addCard = document.createElement('div');
   addCard.className = 'date-card add-card';
   addCard.innerHTML = `<div class="add-icon">+</div><div class="add-label">Add date</div>`;
@@ -151,7 +200,6 @@ function openScrapbook(id) {
   if (activeId === id && panel.classList.contains('open')) {
     closeScrapbook(); return;
   }
-
   activeId = id;
   currentPageIdx = 0;
   animating = false;
@@ -205,7 +253,7 @@ function renderPageNode(entry, idx) {
       ${pg.slots.map((s, si) => `
         <div class="photo-slot${s.img ? ' has-image' : ''}"
              onclick="triggerUpload(${idx},${si})">
-          ${s.img ? `<img src="${s.img}" alt="">` : ''}
+          ${s.img ? `<img src="${s.img}" alt="" loading="lazy">` : ''}
           <div class="plus-icon">
             <svg class="plus-svg" viewBox="0 0 32 32" fill="none">
               <rect x="14" y="3" width="4" height="26" rx="2" fill="rgba(196,104,122,0.5)"/>
@@ -215,6 +263,8 @@ function renderPageNode(entry, idx) {
           </div>
           ${s.img ? `
             <div class="slot-overlay">
+              <span class="slot-overlay-btn"
+                    onclick="event.stopPropagation();openLightbox('${s.img}')">👁 View</span>
               <span class="slot-overlay-btn"
                     onclick="event.stopPropagation();triggerUpload(${idx},${si})">↺ Replace</span>
               <span class="slot-overlay-btn"
@@ -291,34 +341,22 @@ function updateNav(entry) {
   ══════════════════════════════════════════ */
 async function ensurePageInDB(entry, pi) {
   const pg = entry.pages[pi];
-  if (pg.id) return pg.id;   // already saved
+  if (pg.id) return pg.id;
 
   const { data, error } = await db
     .from('pages')
     .insert({ date_entry_id: entry.id, page_index: pi })
     .select('id')
     .single();
-
-  if (error) { console.error('Error creating page:', error); return null; }
+  if (error) { console.error(error); return null; }
   pg.id = data.id;
 
-  // Create all 6 slot rows for this page
   const slotRows = Array.from({ length: 6 }, (_, si) => ({
-    page_id: pg.id,
-    slot_index: si,
-    img_url: null
+    page_id: pg.id, slot_index: si, img_url: null
   }));
   const { data: slotData, error: slotErr } = await db
-    .from('photo_slots')
-    .insert(slotRows)
-    .select('id, slot_index');
-
-  if (slotErr) { console.error('Error creating slots:', slotErr); return pg.id; }
-
-  // Map returned IDs back into local state
-  slotData.forEach(s => {
-    pg.slots[s.slot_index].id = s.id;
-  });
+    .from('photo_slots').insert(slotRows).select('id, slot_index');
+  if (!slotErr) slotData.forEach(s => { pg.slots[s.slot_index].id = s.id; });
 
   return pg.id;
 }
@@ -334,17 +372,12 @@ function triggerUpload(pi, si) {
 async function removePhoto(pi, si) {
   const entry = getEntry();
   const slot  = entry.pages[pi].slots[si];
-
   showLoading('Removing photo… 🥀');
 
-  // Delete from Storage if there's a stored path
   if (slot.img) {
-    // Extract path from public URL
     const path = slot.img.split(`${BUCKET}/`)[1];
     if (path) await db.storage.from(BUCKET).remove([path]);
   }
-
-  // Update DB
   if (slot.id) {
     await db.from('photo_slots').update({ img_url: null }).eq('id', slot.id);
   }
@@ -364,51 +397,39 @@ fileInput.addEventListener('change', async function () {
   this.value   = '';
 
   const entry  = getEntry();
-
   showLoading('Uploading photo… 📸');
 
-  // 1. Make sure the page row exists in DB
   const pageId = await ensurePageInDB(entry, pi);
   if (!pageId) { hideLoading(); return; }
 
   const slot = entry.pages[pi].slots[si];
 
-  // 2. If replacing, delete old file from storage
   if (slot.img) {
     const oldPath = slot.img.split(`${BUCKET}/`)[1];
     if (oldPath) await db.storage.from(BUCKET).remove([oldPath]);
   }
 
-  // 3. Upload new file to Supabase Storage
   const ext      = file.name.split('.').pop();
   const filePath = `${entry.id}/page${pi}_slot${si}_${Date.now()}.${ext}`;
 
   const { error: upErr } = await db.storage
-    .from(BUCKET)
-    .upload(filePath, file, { upsert: true, contentType: file.type });
+    .from(BUCKET).upload(filePath, file, { upsert: true, contentType: file.type });
+  if (upErr) { console.error(upErr); hideLoading(); return; }
 
-  if (upErr) { console.error('Upload error:', upErr); hideLoading(); return; }
-
-  // 4. Get public URL
   const { data: urlData } = db.storage.from(BUCKET).getPublicUrl(filePath);
   const publicUrl = urlData.publicUrl;
 
-  // 5. Save URL to photo_slots table
   if (slot.id) {
     await db.from('photo_slots').update({ img_url: publicUrl }).eq('id', slot.id);
   } else {
-    // Slot row might not exist yet — upsert it
     const { data: newSlot, error: nsErr } = await db
       .from('photo_slots')
       .insert({ page_id: pageId, slot_index: si, img_url: publicUrl })
-      .select('id')
-      .single();
+      .select('id').single();
     if (!nsErr) slot.id = newSlot.id;
   }
 
-  // 6. Update local state
   slot.img = publicUrl;
-
   hideLoading();
   showPage(currentPageIdx, entry, true);
   renderGrid();
@@ -421,11 +442,9 @@ async function addPage() {
   const entry  = getEntry();
   const newIdx = entry.pages.length;
   entry.pages.push(makePage());
-
   showLoading('Adding page… 📄');
   await ensurePageInDB(entry, newIdx);
   hideLoading();
-
   navigateTo(newIdx);
 }
 
@@ -450,24 +469,15 @@ async function confirmAddDate() {
   if (!date) return;
 
   const id = 'date_' + Date.now();
-
   showLoading('Saving date… 🌸');
 
-  // Save to Supabase
   const { error } = await db.from('date_entries').insert({
-    id,
-    date,
-    emoji,
-    label: label || 'Our date ✨'
+    id, date, emoji, label: label || 'Our date ✨'
   });
+  if (error) { console.error(error); hideLoading(); return; }
 
-  if (error) { console.error('Error saving date:', error); hideLoading(); return; }
-
-  // Add to local state
   const newEntry = { id, date, emoji, label: label || 'Our date ✨', pages: [makePage()] };
   dateEntries.push(newEntry);
-
-  // Pre-create first page in DB
   await ensurePageInDB(newEntry, 0);
 
   hideLoading();
@@ -488,12 +498,11 @@ async function deleteDate(e, id) {
 
   showLoading('Deleting… 🥀');
 
-  // Delete all images from Storage first
   const entry = dateEntries.find(en => en.id === id);
   if (entry) {
     const paths = [];
-    entry.pages.forEach((pg, pi) => {
-      pg.slots.forEach((slot, si) => {
+    entry.pages.forEach(pg => {
+      pg.slots.forEach(slot => {
         if (slot.img) {
           const path = slot.img.split(`${BUCKET}/`)[1];
           if (path) paths.push(path);
@@ -503,7 +512,6 @@ async function deleteDate(e, id) {
     if (paths.length) await db.storage.from(BUCKET).remove(paths);
   }
 
-  // Delete from DB — cascades to pages + photo_slots
   await db.from('date_entries').delete().eq('id', id);
 
   const index = dateEntries.findIndex(en => en.id === id);
