@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Herrooo BeeBee</title>
 
-  <!-- your existing CSS -->
   <link rel="stylesheet" href="heartdesign.css">
   <link rel="stylesheet" href="homepage.css">
   <link rel="stylesheet" href="navtab.css">
@@ -67,6 +66,17 @@
         <button class="modal-btn confirm" onclick="confirmAddDate()">Add 🌸</button>
       </div>
     </div>
+  </div>
+
+  <!-- Lightbox -->
+  <div class="lightbox-overlay" id="lightboxOverlay">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <div class="lightbox-inner">
+      <button class="lightbox-arrow lb-prev" id="lbPrev" onclick="lightboxNav(-1)">‹</button>
+      <img class="lightbox-img" id="lightboxImg" src="" alt="">
+      <button class="lightbox-arrow lb-next" id="lbNext" onclick="lightboxNav(1)">›</button>
+    </div>
+    <div class="lightbox-counter" id="lightboxCounter"></div>
   </div>
 
   <input type="file" id="fileInput" accept="image/*">
