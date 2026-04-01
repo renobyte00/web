@@ -38,6 +38,11 @@
       margin-bottom: 2rem;
     }
 
+.emoji-background {
+        z-index: -1;
+        
+    }
+
     /* ══════════════════════════════
        DATE CARDS GRID
     ══════════════════════════════ */
