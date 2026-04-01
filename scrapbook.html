@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Herrooo BeeBee</title>
+
+  <!-- your existing CSS -->
+  <link rel="stylesheet" href="heartdesign.css">
+  <link rel="stylesheet" href="homepage.css">
+  <link rel="stylesheet" href="navtab.css">
+  <link rel="stylesheet" href="cat.css">
+  <link rel="stylesheet" href="scrapbook.css">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Caveat:wght@400;600;700&family=Nunito:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <div class="navtab">
+    <a href="homepage.html">Home</a>
+    <a href="place.html">Place</a>
+    <a href="time.html">Time</a>
+    <a href="music.html">Music</a>
+    <a class="active" href="scrapbook.html">Pictures</a>
+  </div>
+
+  <div class="pictures-page">
+
+    <div class="dates-grid" id="datesGrid"></div>
+
+    <!-- Scrapbook panel -->
+    <div class="scrapbook-panel" id="scrapbookPanel">
+      <div class="panel-header">
+        <span class="panel-title" id="panelTitle"></span>
+        <button class="back-btn" onclick="closeScrapbook()">← Back to dates</button>
+      </div>
+      <div class="book-container">
+        <div class="page-scene" id="pageScene"></div>
+        <div class="page-nav">
+          <button class="nav-btn" id="prevBtn" onclick="changePage(-1)">← Prev</button>
+          <div class="page-dots" id="pageDots"></div>
+          <button class="nav-btn" id="nextBtn" onclick="changePage(1)">Next →</button>
+        </div>
+        <button class="add-page-btn" onclick="addPage()">+ Add Page</button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Add Date Modal -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-box">
+      <h3>Add a Date 🌷</h3>
+      <div class="modal-field">
+        <label>Date (e.g. Mar 22)</label>
+        <input type="text" id="inputDate" placeholder="Mar 22">
+      </div>
+      <div class="modal-field">
+        <label>Label (e.g. First coffee ☕)</label>
+        <input type="text" id="inputLabel" placeholder="Our date ✨">
+      </div>
+      <div class="modal-field">
+        <label>Emoji</label>
+        <input type="text" id="inputEmoji" placeholder="💖" maxlength="4">
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn cancel" onclick="closeModal()">Cancel</button>
+        <button class="modal-btn confirm" onclick="confirmAddDate()">Add 🌸</button>
+      </div>
+    </div>
+  </div>
+
+  <input type="file" id="fileInput" accept="image/*">
+
+  <!-- Supabase must load BEFORE scrapbook.js -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="scrapbook.js"></script>
+</body>
+</html>
